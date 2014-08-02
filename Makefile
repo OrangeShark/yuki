@@ -1,0 +1,5 @@
+
+TARGET = cnc
+
+all: $(TARGET)
+
