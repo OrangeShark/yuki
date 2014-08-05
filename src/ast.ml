@@ -1,5 +1,12 @@
 (* Abstract Syntax Tree *)
 
+type value =
+  | IntValue of int32
+  | FloatValue of float
+  | StringValue of string
+  | BoolValue of bool
+  | CharValue of char
+
 type expr = 
   | Plus of expr * expr
   | Minus of expr * expr
@@ -16,9 +23,17 @@ type expr =
   | Or of expr * expr
   | Uminus of expr
   | Not of expr
-  | Identifier of string
+  | Variable of string
   | Call of string * expr list
   | ArrayAccess of expr * expr
+  | Value of value
+
+type statement =
+  | Skip
+  | Assignment of string * expr
+  | Branch of expr * statement list * statement list
+  | While of expr * statement list
+  | Return of expr
 
 type datatype =
   | IdentifierType of string
@@ -27,6 +42,8 @@ type datatype =
   | StringType
   | BooleanType
   | CharacterType
+
+type param = Parameter of datatype * string
 
 type classDecl =
   | Attribute of datatype * string * expr
