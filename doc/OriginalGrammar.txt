@@ -1,0 +1,179 @@
+Original grammar used in github.com/OrangeShark/senior-project
+Grammar is written in Backus-Naur Form. There is some ambiguity in this
+grammar, specifically related to if and if else statements, known as the
+dangling else problem, and binary expressions. The dangling else belongs 
+to the nearby if statement. For binary expressions they follow this 
+precedence table.
+|*******************************|
+| Precedence  |    Operator     |
+|-------------------------------|
+|      5      |        %        |
+|      4      |       * /       |
+|      3      |       + -       |
+|      2      | == != >= > <= < |
+|      1      |       && ||     |
+*********************************
+
+
+<program> ::= <imports> <declaration_list>
+
+<empty> ::=
+
+<imports> ::= <imports_list>
+            | <empty>
+
+<imports_list> ::= <imports_list> <import_declaration>
+                 | <import_declaration>
+
+<import_declaration> ::= "import" <ID> ";"
+
+<declaration_list> ::= <declaration_list> <declaration>
+                     | <declaration>
+
+<declaration> ::= <var_declaration>
+                | <function_declaration>
+                | <class_declaration>
+
+<var_declaration> ::= <type> <ID> ";"
+                    | <type> <ID> "=" <expression> ";"
+
+<function_declaration> ::= <type> <ID> "(" <params> ")" <compound_stmt>
+
+<type> ::= "void"
+         | "int"
+         | "float"
+         | "string"
+         | "boolean"
+         | "char"
+         | <ID>
+         | <type> "[" "]"
+
+<params> ::= <param_list>
+           | <empty>
+
+<param_list> ::= <param_list> "," <param>
+               | <param>
+
+<param> ::= <type> <ID>
+
+<class_declaration> ::= "class" <ID> "{" <class_block> "}"
+
+<class_block> ::= <attribute_list> <constructor> <method_list>
+
+<attribute_list> ::= <attribute_list> <attribute_declaration>
+                   | <empty>
+
+<attribute_declaration> ::= <type> <ID> ";"
+                          | <type> <ID> "=" <expression> ";"
+
+<method_list> ::= <method_list> <method_declaration>
+                | <empty>
+
+<method_declaration> ::= <type> <ID> "(" <params> ")"
+
+<constructor> ::= "constructor" "(" <params> ")" <compound_stmt>
+
+<statement> ::= <expression_stmt>
+              | <compound_stmt>
+              | <selection_stmt>
+              | <iteration_stmt>
+              | <return_stmt>
+              | <var_dec_stmt>
+              | <array_dec_stmt>
+
+<compound_stmt> ::= "{" <statement_list> "}"
+
+<statement_list> ::= <statement_list> <statement>
+                   | <statement>
+
+<var_dec_stmt> ::= <type> <ID> ";"
+                 | <type> <ID> "=" <expression> ";"
+
+<array_dec_stmt> ::= <type> <ID> "[" <INTEGER> "]" ";"
+                   | <type> <ID> "[" <INTEGER> "]" "=" <array> ";"
+
+<expression_stmt> ::= <expression> ";"
+
+<selection_stmt> ::= <if_stmt>
+                   | <if_else_stmt>
+
+<if_stmt> ::= "if" "(" <expression> ")" <statement>
+
+<if_else_stmt> ::= "if" "(" <expression> ")" <statement> "else" <statement>
+
+<iteration_stmt> ::= <while_stmt>
+                   | <for_stmt>
+
+<while_stmt> ::= "while" "(" <expression> ")" <statement>
+
+(* for_stmt is missing <statement> at the end *)
+<for_stmt> ::= "for" "(" <var_declaration> ";" <expression> ";" <assignment>
+
+<return_stmt> ::= "return" ";"
+                | "return" <expression> ";"
+
+<expression> ::= <assignment>
+               | <binary>
+               | <unary>
+               | <call>
+               | <variable>
+               | <literal>
+               | <paren_expr>
+               | <array>
+               | <attribute_assign>
+               | <class_attribute>
+               | <method_call>
+
+<attribute_assign> ::= <expression> "." <ID> "=" <expression>
+
+<class_attribute> ::= <expression> "." <ID>
+
+<method_call> ::= <expression> "." <ID> "(" arguments ")"
+
+<assignment> ::= <ID> "=" <expression>
+               | <ID> "[" <expression "]" "=" <expression>
+
+<variable> ::= <ID>
+             | <ID> "[" <expression> "]"
+
+<literal> ::= <integer>
+            | <float>
+            | <boolean>
+            | <string>
+            | <character>
+
+<paren_expr> ::= "(" <expression> ")"
+
+<binary> ::= <expression> "+" <expression>
+           | <expression> "-" <expression>
+           | <expression> "*" <expression>
+           | <expression> "/" <expression>
+           | <expression> "%" <expression>
+           | <expression> "<" <expression>
+           | <expression> "<=" <expression>
+           | <expression> ">" <expression>
+           | <expression> ">=" <expression>
+           | <expression> "==" <expression>
+           | <expression> "!=" <expression>
+           | <expression> "&&" <expression>
+           | <expression> "||" <expression>
+
+<unary> ::= <unary_op> <expression>
+
+<unary_op> ::= "-"
+             | "!"
+
+<call> ::= <expression> "(" <arguments> ")"
+
+<arguments> ::= <argument_list>
+              | <empty>
+
+<argument_list> ::= <argument_list> "," <expression>
+                  | <expression>
+
+<array_literal> ::= "[" <list> "]"
+
+<list> ::= <list> <element>
+         | <empty>
+
+<element> ::= <literal>

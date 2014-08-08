@@ -9,3 +9,6 @@
 *.cmxa
 
 *.swp
+*.log
+*.aux
+*.pdf
