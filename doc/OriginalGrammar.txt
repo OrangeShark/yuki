@@ -86,7 +86,7 @@ literals. They are described below as regular expressions.
 <method_list> ::= <method_list> <method_declaration>
                 | <empty>
 
-<method_declaration> ::= <type> <ID> "(" <params> ")"
+<method_declaration> ::= <type> <ID> "(" <params> ")" <compound_stmt>
 
 <constructor> ::= "constructor" "(" <params> ")" <compound_stmt>
 
