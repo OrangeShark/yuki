@@ -14,19 +14,16 @@
       ("if", IF);
       ("else", ELSE);
       ("while", WHILE);
+      ("and", AND);
+      ("or", OR);
       ("for", FOR);
       ("int", INT);
-      ("float", FLOAT);
-      ("void", VOID);
+      ("real", REAL);
       ("char", CHAR);
       ("string", STRING);
-      ("boolean", BOOLEAN);
+      ("bool", BOOLEAN);
       ("true", TRUE);
       ("false", FALSE);
-      ("var", VAR);
-      ("func", FUNC);
-      ("class", CLASS);
-      ("constructor", CONSTR);
       ("return", RETURN);
       ("import", IMPORT)
     ]
@@ -42,8 +39,7 @@
 let digit = ['0'-'9']
 let character = ['a'-'z''A'-'Z']
 let underscore = ['_']
-let identifier = character (character|digit|underscore)*
-let str = '"'_*'"'
+let identifier = (character|underscore) (character|digit|underscore)*
 let open_comment = "/*"
 let close_comment = "*/"
 let space = [' ''\t']
@@ -55,7 +51,7 @@ rule lex = parse
     }
   | digit*'.'digit+ as fnum
     { let num = float_of_string fnum in
-      Float num
+      Real num
     }
   | identifier as word
     { try
@@ -64,28 +60,24 @@ rule lex = parse
       with Not_found ->
         Ident word
     }
+  | "()"  { UNIT }
   | '"'   { string_state (Buffer.create 16) lexbuf }
+  | '\''[^'\'']'\'' as c { Char c.[1] }
   | '+'   { PLUS }
   | '-'   { MINUS }
   | '*'   { TIMES }
   | '/'   { DIVIDE }
   | '%'   { MOD }
-  | "||"  { OR }
-  | "&&"  { AND }
   | '!'   { NOT }
   | '<'   { LT }
   | "<="  { LE }
   | '>'   { GT }
   | ">="  { GE }
-  | "=="  { EQ }
+  | '='   { EQ }
   | "!="  { NE }
-  | "|>"  { PIPE }
-  | '.'   { DOT }
-  | '='   { ASSIGN }
+  | "<-"  { ASSIGN }
   | '('   { LPAREN }
   | ')'   { RPAREN }
-  | '['   { LBRACKET }
-  | ']'   { RBRACKET }
   | '{'   { LBRACE }
   | '}'   { RBRACE }
   | ','   { COMMA }
@@ -95,8 +87,7 @@ rule lex = parse
   | '\n'  { incr_linenum lexbuf; lex lexbuf }
   | _  
     { raise (SyntaxError("Unrecognized character: " ^ Lexing.lexeme lexbuf)) }
-  | eof
-    { raise End_of_file }
+  | eof   { EOF }
 and string_state buf = parse
   | '"'           { String (Buffer.contents buf) }
   | [^'"']+ as s  { Buffer.add_string buf s; string_state buf lexbuf }
@@ -104,6 +95,7 @@ and string_state buf = parse
   | eof           { raise (SyntaxError("Reached EOF on a string")) }
 and comment_state = parse
   | close_comment { lex lexbuf }
+  | '\n'          { incr_linenum lexbuf; comment_state lexbuf }
   | _             { comment_state lexbuf }
   | eof           { raise (SyntaxError("Reached EOF on a comment")) }
 
