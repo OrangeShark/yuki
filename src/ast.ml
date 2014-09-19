@@ -1,12 +1,5 @@
 (* Abstract Syntax Tree *)
 
-type value =
-  | IntValue of int32
-  | FloatValue of float
-  | StringValue of string
-  | BoolValue of bool
-  | CharValue of char
-
 type expr = 
   | Plus of expr * expr
   | Minus of expr * expr
@@ -25,39 +18,44 @@ type expr =
   | Not of expr
   | Variable of string
   | Call of string * expr list
-  | ArrayAccess of expr * expr
-  | Value of value
+  | UnitValue
+  | IntValue of int32
+  | RealValue of float
+  | StringValue of string
+  | BoolValue of bool
+  | CharValue of char
+
+type pattern = 
+  | PatIdent of string
 
 type statement =
   | Skip
+  | Compound of statement list
+  | Expression of expr
+  | VariableDec of datatype * string * expr
   | Assignment of string * expr
-  | Branch of expr * statement list * statement list
-  | While of expr * statement list
+  | Branch of expr * statement * statement 
+  | While of expr * statement 
+  | For of pattern * expression * statement
   | Return of expr
 
 type datatype =
   | IdentifierType of string
-  | VoidType
-  | FloatType
+  | UnitType 
+  | RealType
   | StringType
   | BooleanType
   | CharacterType
 
 type param = Parameter of datatype * string
 
-type classDecl =
-  | Attribute of datatype * string * expr
-  | Constructor of param list * statement list
-  | Method of datatype * string * param list * statement list
-
-type proto = Prototype of datatype * param list
+type proto = Prototype of string * datatype * param list
 
 type import = Import of string
 
 type decl =
   | Function of proto * statement list
-  | Class of string * classDecl list
-  | GVariable of datatype * expr
+  | Constant of datatype * string * expr
 
 (* prog - Represents a program *)
 type prog = Program of import list * decl list

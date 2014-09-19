@@ -17,6 +17,7 @@
       ("and", AND);
       ("or", OR);
       ("for", FOR);
+      ("in", IN);
       ("int", INT);
       ("real", REAL);
       ("char", CHAR);
