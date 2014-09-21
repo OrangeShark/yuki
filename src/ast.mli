@@ -1,5 +1,14 @@
 (* Abstract Syntax Tree *)
 
+type datatype =
+  | IdentifierType of string
+  | IntType
+  | UnitType 
+  | RealType
+  | StringType
+  | BooleanType
+  | CharacterType
+
 type expr = 
   | Plus of expr * expr
   | Minus of expr * expr
@@ -28,33 +37,27 @@ type expr =
 type pattern = 
   | PatIdent of string
 
-type statement =
+type stmt =
   | Skip
-  | Compound of statement list
+  | Block of stmts
   | Expression of expr
   | VariableDec of datatype * string * expr
   | Assignment of string * expr
-  | Branch of expr * statement * statement 
-  | While of expr * statement 
-  | For of pattern * expression * statement
+  | Branch of expr * stmt * stmt 
+  | While of expr * stmt 
+  | For of pattern * expr * stmt
   | Return of expr
 
-type datatype =
-  | IdentifierType of string
-  | UnitType 
-  | RealType
-  | StringType
-  | BooleanType
-  | CharacterType
+and stmts = stmt list
 
 type param = Parameter of datatype * string
 
-type proto = Prototype of string * datatype * param list
+type proto = Prototype of datatype * string * param list
 
 type import = Import of string
 
 type decl =
-  | Function of proto * statement list
+  | Function of proto * stmts
   | Constant of datatype * string * expr
 
 (* prog - Represents a program *)

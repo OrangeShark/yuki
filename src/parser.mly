@@ -99,56 +99,31 @@ param: ty Ident { Parameter($1, $2) }
 pattern: Ident { PatIdent($1) }
 
 statement:
-    compound_stmt { $1 }
-  | expression_stmt { $1 }
-  | branch_stmt { $1 }
-  | iteration_stmt { $1 }
-  | return_stmt { $1 }
-  | var_dec_stmt { $1 }
-  | assignment_stmt { $1 }
+    compound_stmt { Block($1) }
+  | expression SEMI { Ast.Expression($1) }
+  | IF LPAREN expression RPAREN statement { Branch($3, $5, Skip) }
+  | IF LPAREN expression RPAREN statement ELSE statement { Branch($3, $5, $7) }
+  | WHILE LPAREN expression RPAREN statement { While($3, $5) }
+  | FOR LPAREN pattern IN expression RPAREN statement { For($3, $5, $7) }
+  | RETURN SEMI { Return(UnitValue) }
+  | RETURN expression SEMI { Return($2) }
+  | ty Ident SEMI { VariableDec($1, $2, UnitValue) }
+  | ty Ident ASSIGN expression SEMI { VariableDec($1, $2, $4) }
+  | Ident ASSIGN expression SEMI { Assignment($1, $3) }
 
-compound_stmt: LBRACE statement_list RBRACE { Compound($2) }
+compound_stmt:
+    LBRACE statement_list RBRACE { $2 }
 
 statement_list:
-    statement_list statement { $2::$1 }
+    statement statement_list { $1::$2 }
   | statement { [$1] }
 
-expression_stmt:
-  expression SEMI { Expression($1) }
-
-branch_stmt:
-    IF LPAREN expression RPAREN statement { Branch($3, $5, Skip) }
-  | IF LPAREN expression RPAREN statement ELSE statement { Branch($3, $5, $7) }
-
-iteration_stmt:
-    WHILE LPAREN expression RPAREN statement { While($3, $5) }
-  | FOR LPAREN pattern IN expression RPAREN statement { For($3, $5, $7) }
-
-return_stmt:
-    RETURN SEMI { Return(UnitValue) }
-  | RETURN expression SEMI { Return($2) }
-
-var_dec_stmt:
-    ty Ident SEMI { VariableDec($1, $2, UnitValue) }
-  | ty Ident ASSIGN expression SEMI { VariableDec($1, $2, $4) }
-
-assignment_stmt:
-  Ident ASSIGN expression SEMI { Assignment($1, $3) }
-
 expression:
-    binary { $1 }
-  | unary { $1 }
-  | call { $1 }
-  | variable { $1 }
-  | literal { $1 }
-  | paren_expr { $1 }
-
-binary:
     expression PLUS expression { Plus($1, $3) }
   | expression MINUS expression { Minus($1, $3) }
   | expression TIMES expression { Times($1, $3) }
   | expression DIVIDE expression { Divide($1, $3) }
-  | expression MOD expression { Mod($1, $3) }
+  | expression MOD expression { Modulus($1, $3) }
   | expression LT expression { LessThan($1, $3) }
   | expression LE expression { LessEqual($1, $3) }
   | expression GT expression { GreaterThan($1, $3) }
@@ -157,36 +132,24 @@ binary:
   | expression NE expression { NotEqual($1, $3) }
   | expression AND expression { And($1, $3) }
   | expression OR expression { Or($1, $3) }
-
-unary: 
-    MINUS expression %prec UMINUS { Uminus($2) }
+  | MINUS expression %prec UMINUS { Uminus($2) }
   | NOT expression { Not($2) }
-
-call:
-  expression LPAREN arguments RPAREN { Call($1, $3) }
+  | Ident LPAREN arguments RPAREN { Call($1, $3) }
+  | Ident { Variable($1) }
+  | Int { IntValue($1) }
+  | Real { RealValue($1) }
+  | TRUE { BoolValue(true) }
+  | FALSE { BoolValue(false) }
+  | String { StringValue($1) }
+  | Char { CharValue($1) }
+  | LPAREN expression RPAREN { $2 }
 
 arguments:
     argument_list { $1 }
   | empty { [] }
 
 argument_list:
-    argument_list COMMA expression { $3::$1 }
+    expression COMMA argument_list { $1::$3 }
   | expression { [$1] }
 
-variable:
-  Ident { Variable($1) }
-
-literal:
-    Int { IntValue($1) }
-  | Real { RealValue($1) }
-  | boolean { $1 }
-  | String { StringValue($1) }
-  | Char { CharValue($1) }
-
-boolean:
-    TRUE { BoolValue(true) }
-  | FALSE { BoolValue(false) }
-
-paren_expr:
-  LPAREN expression RPAREN { $2 }
 %%
