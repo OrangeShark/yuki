@@ -12,3 +12,5 @@
 *.log
 *.aux
 *.pdf
+
+bin/
